@@ -1,4 +1,5 @@
 import { Client } from '@petfinder/petfinder-js';
+import { isValidZip, showAlert } from './validate';
 
 const petForm = document.querySelector('#pet-form');
 
@@ -9,6 +10,12 @@ function fetchAnimals(e) {
   //Get user input
   const animal = document.querySelector('#animal').value;
   const zip = document.querySelector('#zip').value;
+
+  //Validate zipcode
+  if (!isValidZip(zip)) {
+    showAlert('Please enter a valid Zip Code', 'danger');
+    return;
+  }
 
   const client = new Client({
     apiKey: 'xw5Ep51ErqO6MAru21udyz6ALBWZE6FxFOHYriotpg60duM2zQ',
@@ -21,7 +28,14 @@ function fetchAnimals(e) {
       type: animal,
       location: zip
     })
-    .then((res) => showAnimals(res.data.animals))
+    .then((res) => {
+      if (res.data.animals.length > 0) showAnimals(res.data.animals);
+      else
+        showAlert(
+          `There are any ${animal} in this region. Verify the Zip Code`,
+          'info'
+        );
+    })
     .catch((err) => console.log(err));
 }
 
@@ -33,7 +47,6 @@ function showAnimals(animals) {
   results.innerHTML = '';
   //Loop through pets
   animals.forEach((animal) => {
-    console.log(animal);
     const div = document.createElement('div');
     div.classList.add('card', 'card-body', 'mb-3');
     div.innerHTML = `
@@ -64,8 +77,8 @@ function showAnimals(animals) {
             </div>
             <div class="col-sm-6 text-center">
                 <img class="img-fluid rounded-circle mt-2" src="${
-                  animal.photos[0].medium
-                }" alt="animal image" />
+                  animal.photos[0] !== undefined ? animal.photos[0].medium : ``
+                }" alt="No image" />
             </div>
         </div>
     `;
