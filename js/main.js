@@ -36,7 +36,7 @@ function fetchAnimals(e) {
           'info'
         );
     })
-    .catch((err) => console.log(err));
+    .catch((err) => showAlert(`The Zip Code ${zip} doesn't exist`, 'danger'));
 }
 
 //Show listing of pets
